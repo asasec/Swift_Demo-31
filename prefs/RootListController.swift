@@ -1,5 +1,4 @@
 import UIKit
-import Preferences
 import CepheiPrefs
 
 class RootListController: HBRootListController {
