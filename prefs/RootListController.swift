@@ -12,8 +12,8 @@ class RootListController: HBRootListController {
                 return cached
             }
 
-            let loaded = self.loadSpecifiersFromPlistName(
-                "Root",
+            let loaded = self.loadSpecifiers(
+                fromPlistName: "Root",
                 target: self
             )
 
