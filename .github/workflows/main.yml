@@ -12,34 +12,118 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Clone Jinx and copy source files
-      run: |
-        git clone https://github.com/Paisseon/Jinx.git temp_jinx
-        mkdir -p Sources/Jinx
-        cp -R temp_jinx/Sources/Jinx/. Sources/Jinx/
-        rm -rf temp_jinx
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-    - name: Install Dependencies
-      run: |
-        brew install ldid xz make
-        git clone --recursive https://github.com/theos/theos.git ~/theos
+      - name: Check Xcode and Swift
+        run: |
+          echo "===== Xcode ====="
+          xcode-select -p
+          xcodebuild -version
 
-    - name: Set up Environment
-      run: |
-        echo "THEOS=~/theos" >> $GITHUB_ENV
-        echo "~/theos/bin" >> $GITHUB_PATH
+          echo ""
+          echo "===== Swift ====="
+          swift --version
 
-    - name: Build Package
-      run: |
-        make package
-      env:
-        THEOS: /Users/runner/theos
+          echo ""
+          echo "===== iPhoneOS SDK ====="
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+          echo "SDK_PATH=$SDK_PATH"
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: JinxSwiftTweak-deb
-        path: packages/*.deb
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: iPhoneOS SDK path is empty."
+            exit 1
+          fi
+
+          if [ ! -d "$SDK_PATH" ]; then
+            echo "ERROR: iPhoneOS SDK does not exist:"
+            echo "$SDK_PATH"
+            exit 1
+          fi
+
+          echo ""
+          echo "===== UIKit ====="
+
+          if [ ! -d "$SDK_PATH/System/Library/Frameworks/UIKit.framework" ]; then
+            echo "ERROR: UIKit.framework not found."
+            exit 1
+          fi
+
+          echo "UIKit.framework found."
+
+          echo ""
+          echo "===== SDK Settings ====="
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphoneos --show-sdk-platform-path
+
+      - name: Install Dependencies
+        run: |
+          brew install ldid xz make
+
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+
+      - name: Set up Environment
+        run: |
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+          echo "$HOME/theos/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Theos
+        run: |
+          echo "THEOS=$THEOS"
+          test -d "$THEOS"
+          test -f "$THEOS/makefiles/common.mk"
+
+      - name: Check Swift Package
+        run: |
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "Using SDK:"
+          echo "$SDK_PATH"
+
+          echo ""
+          echo "Resolving Swift packages..."
+
+          swift package resolve
+
+      - name: Test Swift Build
+        run: |
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "SDK_PATH=$SDK_PATH"
+
+          swift build \
+            -Xswiftc "-sdk" \
+            -Xswiftc "$SDK_PATH" \
+            -Xswiftc "-target" \
+            -Xswiftc "arm64-apple-ios14.0"
+
+      - name: Build Package
+        run: |
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "SDK_PATH=$SDK_PATH"
+
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: SDK_PATH is empty."
+            exit 1
+          fi
+
+          make package
+
+      - name: Show Package
+        run: |
+          echo "===== Generated packages ====="
+          ls -lah packages/ || true
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JinxSwiftTweak-deb
+          path: packages/*.deb
+          if-no-files-found: error
