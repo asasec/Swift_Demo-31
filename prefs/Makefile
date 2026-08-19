@@ -8,8 +8,6 @@ JinxSwiftTweakPrefs_FILES = RootListController.swift
 
 JinxSwiftTweakPrefs_FRAMEWORKS = UIKit
 
-JinxSwiftTweakPrefs_PRIVATE_FRAMEWORKS = Preferences
-
 JinxSwiftTweakPrefs_EXTRA_FRAMEWORKS = CepheiPrefs
 
 JinxSwiftTweakPrefs_INSTALL_PATH = /Library/PreferenceBundles
