@@ -1,0 +1,37 @@
+name: Build Swift Tweak
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        brew install ldid xz make
+        git clone --recursive https://github.com/theos/theos.git ~/theos
+
+    - name: Set up Environment
+      run: |
+        echo "THEOS=~/theos" >> $GITHUB_ENV
+        echo "~/theos/bin" >> $GITHUB_PATH
+
+    - name: Build Package
+      run: |
+        make package
+      env:
+        THEOS: /Users/runner/theos
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: JinxSwiftTweak-deb
+        path: packages/*.deb
