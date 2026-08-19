@@ -15,6 +15,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Clone Jinx and copy source files
+      run: |
+        git clone https://github.com/Paisseon/Jinx.git temp_jinx
+        mkdir -p Sources/Jinx
+        cp -R temp_jinx/Sources/Jinx/. Sources/Jinx/
+        rm -rf temp_jinx
+
     - name: Install Dependencies
       run: |
         brew install ldid xz make
