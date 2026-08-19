@@ -1,7 +1,10 @@
-import Foundation
 import Jinx
+import UIKit
 
-@_cdecl("tweak_entry")
-public func jinxEntry() {
+@_cdecl("jinx_entry")
+func jinxEntry() {
     NSLog("[JinxSwiftTweak] Tweak loaded successfully!")
+    
+    // Kendi hook tanımlamalarını buraya ekleyebilirsin
+    // Örnek: MyCustomHook().hook()
 }
