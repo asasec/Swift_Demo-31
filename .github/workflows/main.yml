@@ -27,11 +27,13 @@ jobs:
 
           echo ""
           echo "===== Swift ====="
-          swift --version
+          xcrun swift --version
 
           echo ""
           echo "===== iPhoneOS SDK ====="
+
           SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
           echo "SDK_PATH=$SDK_PATH"
 
           if [ -z "$SDK_PATH" ]; then
@@ -40,8 +42,7 @@ jobs:
           fi
 
           if [ ! -d "$SDK_PATH" ]; then
-            echo "ERROR: iPhoneOS SDK does not exist:"
-            echo "$SDK_PATH"
+            echo "ERROR: iPhoneOS SDK does not exist."
             exit 1
           fi
 
@@ -56,9 +57,9 @@ jobs:
           echo "UIKit.framework found."
 
           echo ""
-          echo "===== SDK Settings ====="
+          echo "===== SDK Version ====="
+
           xcrun --sdk iphoneos --show-sdk-version
-          xcrun --sdk iphoneos --show-sdk-platform-path
 
       - name: Install Dependencies
         run: |
@@ -76,50 +77,48 @@ jobs:
       - name: Verify Theos
         run: |
           echo "THEOS=$THEOS"
-          test -d "$THEOS"
-          test -f "$THEOS/makefiles/common.mk"
 
-      - name: Check Swift Package
-        run: |
-          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
-
-          echo "Using SDK:"
-          echo "$SDK_PATH"
-
-          echo ""
-          echo "Resolving Swift packages..."
-
-          swift package resolve
-
-      - name: Test Swift Build
-        run: |
-          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
-
-          echo "SDK_PATH=$SDK_PATH"
-
-          swift build \
-            -Xswiftc "-sdk" \
-            -Xswiftc "$SDK_PATH" \
-            -Xswiftc "-target" \
-            -Xswiftc "arm64-apple-ios14.0"
-
-      - name: Build Package
-        run: |
-          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
-
-          echo "SDK_PATH=$SDK_PATH"
-
-          if [ -z "$SDK_PATH" ]; then
-            echo "ERROR: SDK_PATH is empty."
+          if [ ! -f "$THEOS/makefiles/common.mk" ]; then
+            echo "ERROR: Theos was not installed correctly."
             exit 1
           fi
+
+          echo "Theos OK."
+
+      - name: Resolve Swift Packages
+        run: |
+          swift package resolve
+
+      - name: Build Swift Package for iOS
+        run: |
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          echo "========================================"
+          echo "Building Swift package"
+          echo "========================================"
+          echo "SDK: $SDK_PATH"
+          echo "Target: arm64-apple-ios14.0"
+          echo ""
+
+          swift build \
+            --sdk "$SDK_PATH" \
+            --triple arm64-apple-ios14.0
+
+      - name: Build Theos Package
+        run: |
+          echo "========================================"
+          echo "Building Theos package"
+          echo "========================================"
 
           make package
 
       - name: Show Package
         run: |
-          echo "===== Generated packages ====="
-          ls -lah packages/ || true
+          echo "========================================"
+          echo "Generated packages"
+          echo "========================================"
+
+          ls -lah packages/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
