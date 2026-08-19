@@ -1,4 +1,3 @@
-.global _tweak_entry
+.mod_init_func
 .align 4
-_tweak_entry:
-    ret
+.quad _jinx_entry
