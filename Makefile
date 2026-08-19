@@ -14,15 +14,15 @@ JinxSwiftTweak_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
+# Swift build komutuna iOS SDK ve platform parametrelerini tam olarak ekliyoruz
 before-all::
 	swift package resolve
-	swift build -Xswiftc "-sdk" -Xswiftc "$(shell xcrun --sdk iphoneos --show-sdk-path)" -Xswiftc "-target" -Xswiftc "arm64-apple-ios12.0"
+	swift build --triple arm64-apple-ios12.0 -Xswiftc "-sdk" -Xswiftc "$(shell xcrun --sdk iphoneos --show-sdk-path)" -Xswiftc "-target" -Xswiftc "arm64-apple-ios12.0" -Xswiftc "-parse-as-library"
 	@echo "--- JINX MODUL DIZINI ---"
 	@echo $(SPM_MODULE_DIR)
-	@ls -la $(SPM_MODULE_DIR)
 
 after-install::
 	install.exec "killall -9 SpringBoard"
 
 SUBPROJECTS += prefs
-include $(THEOS_MAKE_PATH)/aggregate.mk
+include $(THEOS_MAKE_PATH:/aggregate.mk) # veya $(THEOS_MAKE_PATH)/aggregate.mk
