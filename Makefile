@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = JinxSwiftTweak
 
 # Tweak.swift, load.s ve Sources/Jinx altındaki tüm Swift dosyalarını dahil ediyoruz
-JinxSwiftTweak_FILES = Sources/Tweak.swift load.s $(shell find Sources/Jinx -name '*.swift')
+JinxSwiftTweak_FILES = $(shell find Sources/Jinx -name '*.swift') Sources/Tweak.swift load.s
 JinxSwiftTweak_SWIFTFLAGS = -swift-version 5
 JinxSwiftTweak_CFLAGS = -fobjc-arc
 
