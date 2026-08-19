@@ -28,6 +28,7 @@ jobs:
     - name: Build Package
       run: |
         make package
+        ls -la
       env:
         THEOS: /Users/runner/theos
 
