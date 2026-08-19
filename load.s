@@ -1,6 +1,5 @@
 .global _jinx_entry
 .align 4
-
 _jinx_entry:
-    // Swift tarafındaki başlangıç fonksiyonuna yönlendirme
+    // Gerekli atlama veya çağrı
     ret
