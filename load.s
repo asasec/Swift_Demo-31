@@ -1,5 +1,4 @@
-.global _jinx_entry
+.global _tweak_entry
 .align 4
-_jinx_entry:
-    // Gerekli atlama veya çağrı
+_tweak_entry:
     ret
