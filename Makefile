@@ -7,10 +7,8 @@ TWEAK_NAME = JinxSwiftTweak
 
 JinxSwiftTweak_FILES = Sources/Tweak.swift load.s
 
-# Jinx.swiftmodule konumunu bul
 SPM_MODULE_DIR = $(shell find .build -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
 
-# iPhoneOS SDK
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
 JinxSwiftTweak_SWIFTFLAGS = \
@@ -52,18 +50,17 @@ before-all::
 
 	swift package resolve
 
-	@echo ""
-	@echo "Building Swift package..."
-	@echo ""
+	@echo "========================================"
+	@echo "Building Jinx for iOS"
+	@echo "========================================"
 
 	swift build \
-		-Xswiftc "-sdk" \
-		-Xswiftc "$(SDK_PATH)" \
-		-Xswiftc "-target" \
-		-Xswiftc "arm64-apple-ios14.0"
+		--sdk "$(SDK_PATH)" \
+		--triple arm64-apple-ios14.0
 
 after-install::
 	install.exec "killall -9 SpringBoard"
 
 SUBPROJECTS += prefs
+
 include $(THEOS_MAKE_PATH)/aggregate.mk
