@@ -1,0 +1,9 @@
+Package: com.yourname.jinxswifttweak
+Name: JinxSwiftTweak
+Depends: mobilesubstrate, ws.hbang.common (>= 1.17)
+Architecture: iphone-arm
+Description: A Swift-based iOS tweak using Jinx hooking framework.
+Maintainer: YourName
+Author: YourName
+Section: Tweaks
+Version: 0.0.1-1
